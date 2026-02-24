@@ -98,6 +98,16 @@ After every correction or failure:
 2. Update pipeline prompts to prevent recurrence
 3. Review lessons at the start of each cycle
 
+## Token Optimization
+
+This pipeline is designed for cost efficiency. Key principles:
+- **Opus for decisions, Sonnet for execution** — workers and audits run on Sonnet
+- **Self-contained cron prompts** — inline instructions, load reference files only when needed
+- **Grep-first auditing** — pre-built shell commands, not LLM reasoning
+- **Scripts over LLMs for monitoring** — deterministic checks don't need AI
+
+See [references/token-optimization.md](references/token-optimization.md) for detailed guidance.
+
 ## Files
 
 | File | Purpose |

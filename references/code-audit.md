@@ -1,5 +1,13 @@
 # Daily Code Audit Reference
 
+## Model: Sonnet (not Opus)
+Code auditing is primarily grep + pattern matching. Use Sonnet to save tokens.
+Only escalate to Opus if findings require deep architectural judgment.
+
+## Approach: Grep-First
+Pre-build language-specific grep commands in the cron prompt.
+Sonnet runs them, interprets results, files issues. No open-ended "analyze the codebase."
+
 ## Audit Checklist
 
 ### 1. Security
