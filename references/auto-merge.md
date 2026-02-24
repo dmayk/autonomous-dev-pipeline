@@ -16,13 +16,16 @@ curl -s -H "Authorization: token $(cat TOKEN)" \
 ```
 ALL runs must have `conclusion: "success"`. Use Option B if Option A returns 403.
 
-### Gate 2: Claude Code Review Approved
+### Gate 2: Claude Code Review Passed
+Claude reviews code as a CI check-run (not a PR review object). It submits REQUEST_CHANGES
+(failing the check) if it finds blocking issues. A passing check = approved.
+
 ```bash
-curl -s -H "Authorization: token $(cat TOKEN)" \
-  "https://api.github.com/repos/OWNER/REPO/pulls/NUMBER/reviews" \
-  | jq '.[] | select(.state == "APPROVED") | {user: .user.login, state}'
+# Already covered by Gate 1 — look for "claude-review" in check-runs with conclusion "success"
+# If claude-review check-run is missing or failed, this gate fails.
 ```
-At least one `APPROVED` review must exist. No `CHANGES_REQUESTED` reviews pending.
+Verify the `claude-review` check-run exists AND has `conclusion: "success"` in the Gate 1 results.
+If no `claude-review` run exists (e.g., workflow not triggered yet), gate fails — do not merge.
 
 ### Gate 3: Opus Expert Review
 Read the full diff and evaluate:
