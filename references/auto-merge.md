@@ -4,11 +4,17 @@
 
 ### Gate 1: CI Tests Pass
 ```bash
+# Option A: check-runs API (needs checks:read permission)
 curl -s -H "Authorization: token $(cat TOKEN)" \
   "https://api.github.com/repos/OWNER/REPO/commits/SHA/check-runs" \
   | jq '.check_runs[] | {name, conclusion}'
+
+# Option B: Actions API (works with fine-grained PATs without checks:read)
+curl -s -H "Authorization: token $(cat TOKEN)" \
+  "https://api.github.com/repos/OWNER/REPO/actions/runs?head_sha=SHA" \
+  | jq '.workflow_runs[] | {name, conclusion}'
 ```
-ALL check runs must have `conclusion: "success"`.
+ALL runs must have `conclusion: "success"`. Use Option B if Option A returns 403.
 
 ### Gate 2: Claude Code Review Approved
 ```bash
