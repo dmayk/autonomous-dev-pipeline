@@ -16,18 +16,7 @@ curl -s -H "Authorization: token $(cat TOKEN)" \
 ```
 ALL runs must have `conclusion: "success"`. Use Option B if Option A returns 403.
 
-### Gate 2: Claude Code Review Passed
-Claude reviews code as a CI check-run (not a PR review object). It submits REQUEST_CHANGES
-(failing the check) if it finds blocking issues. A passing check = approved.
-
-```bash
-# Already covered by Gate 1 — look for "claude-review" in check-runs with conclusion "success"
-# If claude-review check-run is missing or failed, this gate fails.
-```
-Verify the `claude-review` check-run exists AND has `conclusion: "success"` in the Gate 1 results.
-If no `claude-review` run exists (e.g., workflow not triggered yet), gate fails — do not merge.
-
-### Gate 3: Opus Expert Review
+### Gate 2: Opus Expert Review *(was Gate 3 — Claude Code Review CI removed 2026-03-07)*
 Read the full diff and evaluate:
 - Does the code solve the issue correctly?
 - Is error handling comprehensive?
@@ -36,7 +25,7 @@ Read the full diff and evaluate:
 - Are tests meaningful (not just `assertTrue(true)`)?
 - Would a staff engineer approve this?
 
-### Gate 4: No Unresolved Comments
+### Gate 3: No Unresolved Comments
 ```bash
 curl -s -H "Authorization: token $(cat TOKEN)" \
   "https://api.github.com/repos/OWNER/REPO/pulls/NUMBER/comments" \
@@ -44,7 +33,7 @@ curl -s -H "Authorization: token $(cat TOKEN)" \
 ```
 All review threads must be resolved.
 
-### Gate 5: No Merge Conflicts
+### Gate 4: No Merge Conflicts
 ```bash
 curl -s -H "Authorization: token $(cat TOKEN)" \
   "https://api.github.com/repos/OWNER/REPO/pulls/NUMBER" \
