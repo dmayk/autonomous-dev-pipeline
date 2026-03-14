@@ -55,3 +55,28 @@ Log work to daily memory file.
 - If worker produces broken code: log the failure, don't create PR
 - If rate limited: stop gracefully, log for next cycle
 - If git conflicts: rebase on main first, then retry
+
+## Verso/Swift-Specific Pitfalls
+
+### ⚠️ WriterStateProviding protocol gap (recurring CI killer)
+When adding a new property to `AppState` that is accessed from any view inside a
+`Packages/*/Sources/` module (e.g. `EditorView<S: WriterStateProviding>`), you MUST
+also declare that property in `WriterStateProviding.swift`. Without it, the package
+cannot see the property and the build fails with:
+> `value of type 'S' has no dynamic member 'foo' using key path from root type 'S'`
+
+**Rule:** Every `AppState` property accessed by a generic `<S: WriterStateProviding>`
+view → must be in the protocol. Check `WriterStateProviding.swift` before opening a PR.
+
+### ⚠️ Stale pbxproj cross-branch contamination
+If branch B is based on a state where branch A had already added a file to
+`project.pbxproj`, but branch B does not include that file, CI will fail with:
+> `Build input file cannot be found: '…/VersoTests/SomeTests.swift'`
+
+**Rule:** After rebasing, verify all files referenced in `project.pbxproj` actually
+exist on the branch: `grep "\.swift" Verso.xcodeproj/project.pbxproj | grep "path = " | awk -F'"' '{print $2}' | while read f; do [ -f "VersoTests/$f" ] || [ -f "Verso/$f" ] || echo "MISSING: $f"; done`
+
+### ⚠️ New .swift files must be registered in project.pbxproj
+Every new `.swift` file added under `Verso/` or `VersoTests/` must be added to
+`Verso.xcodeproj/project.pbxproj` (PBXFileReference + PBXBuildFile + group + Sources
+phase). Files in `Packages/*/Sources/` do NOT need pbxproj registration (SPM handles them).
